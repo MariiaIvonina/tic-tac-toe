@@ -1,0 +1,5 @@
+{
+  "name": "Git Tic-Tac-Toe",
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "postCreateCommand": "git config --global pull.rebase false"
+}
