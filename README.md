@@ -1,46 +1,73 @@
-# Git Tic-Tac-Toe Template
+# Tic-Tac-Toe Board Rules
 
-You and a partner play tic-tac-toe in one shared GitHub repository. Each move is a small edit to the board, saved so your partner can review it.
+This project is a Git-based tic-tac-toe game. Players update the shared `BOARD.txt` and must follow the legal game rules defined in `docs/PRD.md`.
 
-![Git Tic-Tac-Toe Turn Cycle](images/workflow.svg)
+## Required board format
 
-## What you start with
+`BOARD.txt` must contain exactly three rows of three cells:
 
-This template ships with only the branch `main`.
+- each row must have exactly three entries
+- entries are separated by single spaces
+- cells may only be `X`, `O`, or `.`
+- there must be no extra content or blank lines
 
-`main` is the clean reference board. It contains `BOARD.txt`, an empty 3×3 grid of dots. Each row has three cells separated by one space. A move replaces one `.` with `X` or `O`.
+Example:
 
-Leave `main` untouched. Play only on the `match` branch, so the empty board stays available as the reference.
+```text
+X . O
+. O .
+. . X
+```
 
-## Start the shared game
+## Valid game states
 
-1. At the session, choose one person's public repository created from this template.
-2. The owner invites the other partner as a collaborator.
-3. On GitHub.com, before either person opens a Codespace, use the branch dropdown to create a branch named `match` from `main`.
-4. Each partner then opens that same repository in a separate Codespace, on `match`. Both people use the browser editor.
+A board is valid only if it follows the game rules below:
 
-Check the name in the lower-left corner. It must say `match` before you edit the board.
+- `X` starts and turns alternate
+- the number of `X` cells is either equal to the number of `O` cells or exactly one more
+- if counts are equal, it is `X`'s turn; if `X` has one extra, it is `O`'s turn
+- a board in progress has no winner and at least one empty cell
+- a finished winning board has exactly one winner
+- an `X` win requires exactly one more `X` than `O`; an `O` win requires equal counts
+- the winning state must be reachable through legal play that stops immediately on the first win
+- a full board with no winner is a valid draw
+- boards with both players winning or with inconsistent win counts are rejected
 
-## Take a turn
+## Legal move rules
 
-Both partners work on `match`. Pull your partner's latest move before you edit.
+Before applying a move:
 
-1. In **Source Control**, select **Pull**.
-2. Open `BOARD.txt`. Change one `.` to your mark (`X` or `O`), then save.
-3. Look at the diff. It should show only that one mark.
-4. Stage `BOARD.txt` with the **+** button.
-5. Write a short commit message and select **Commit**.
-6. Select **Push**. Tell your partner the move is ready.
-7. Your partner pulls, checks the board, and takes the next turn.
+- confirm the previous board is valid and not already finished
+- confirm the requested symbol is the player whose turn it is
+- confirm the selected cell is empty
 
-Saving, staging, committing, and pushing are separate steps. Take turns.
+A valid move replaces exactly one `.` with the current player's symbol. Every other cell stays unchanged. The updated board must be written to `BOARD.txt` before any push or commit is considered complete.
 
-## Rehearse before the workshop
+## Acceptance checks
 
-Create your own public repository from this template. Open it in a Codespace, select **Ask** in Copilot Chat, and ask: “What does this repository do?” You are ready when the answer describes this shared tic-tac-toe game and says moves go in `BOARD.txt`. Leave the board unchanged, and keep the repository for the workshop.
+The acceptance rules are:
 
-At the session, follow **Start the shared game**: create `match` on GitHub.com before either person opens a Codespace.
+1. malformed layouts or invalid symbols are rejected
+2. invalid move counts, both players winning, or inconsistent wins are rejected
+3. a winning board that cannot arise from legal play is rejected
+4. valid in-progress boards are accepted and the next turn is computed from the counts
+5. valid winning boards are recognized as finished and no further move is accepted
+6. full boards with no winner are recognized as draws and no further move is accepted
+7. wrong-symbol or occupied-cell moves are rejected without changing the board
+8. a valid move changes exactly one empty cell to the current player's symbol
+9. every accepted move writes the updated board to `BOARD.txt` before any push
 
-## If you need help
+## How to play
 
-Ask your partner or the facilitator to look at the board and Source Control with you.
+1. pull the latest board state from the shared branch
+2. edit exactly one `.` to your symbol
+3. run `python3 scripts/check_move.py X` or `python3 scripts/check_move.py O`
+4. verify the diff only shows the single legal move
+5. stage, commit, and push the updated `BOARD.txt`
+
+## Do not
+
+- do not change the tests
+- do not make a move after the board is already won or drawn
+- do not overwrite an occupied square
+- do not submit a board that violates the rules in `docs/PRD.md`
